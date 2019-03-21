@@ -308,6 +308,8 @@
     });
 
     $('#save').click(function () {
+        document.getElementById('save').style.opacity = '0.7';
+        document.getElementById('save_icon').className = "ni ni-check-bold";
         $.ajax({
             type: 'POST',
             url: '{% url 'user:edit_file' %}',
@@ -319,12 +321,6 @@
             success: function (data) {
                 if (data['data'] != 'err') {
                     console.log("Success");
-                    document.getElementById('save').style.opacity = '0.7';
-                    document.getElementById('save_icon').className = "ni ni-check-bold";
-                    window.setTimeout(function () {
-                        document.getElementById('save_icon').className = "fa fa-save";
-                        document.getElementById('save').style.opacity = '1';
-                    }, 2000);
                 }else {
                     alert('Cannot Save File');
                 }
@@ -334,6 +330,10 @@
                 alert("Something went wrong!");
             }
         });
+        window.setTimeout(function () {
+            document.getElementById('save_icon').className = "fa fa-save";
+            document.getElementById('save').style.opacity = '1';
+        }, 2000);
     });
 
     CodeMirror.commands.save = function() {
