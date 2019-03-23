@@ -8,19 +8,52 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="{% static 'codemirror/doc/docs.css' %}">
     <link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}">
+    <link rel="stylesheet" href="{% static 'codemirror/addon/hint/show-hint.css' %}">
+    <link rel="stylesheet" href="{% static 'codemirror/addon/display/fullscreen.css' %}">
+    <link rel="stylesheet" href="{% static 'codemirror/addon/hint/show-hint.css' %}">
+    <link rel="stylesheet" href="{% static 'codemirror/addon/fold/foldgutter.css' %}">
+    <link rel="stylesheet" href="{% static 'codemirror/addon/dialog/dialog.css' %}">
+    <link rel="stylesheet" href="{% static 'codemirror/addon/search/matchesonscrollbar.css' %}">
+    <link rel="stylesheet" href="{% static 'codemirror/addon/scroll/simplescrollbars.css' %}">
+
     <script src="{% static 'codemirror/lib/codemirror.js' %}"></script>
-    <script src="{% static 'codemirror/mode/javascript/javascript.js' %}"></script>
-    <script src="{% static 'codemirror/mode/xml/xml.js' %}"></script>
+    <script src="{% static 'codemirror/addon/mode/loadmode.js' %}"></script>
+    <script src="{% static 'codemirror/mode/meta.js' %}"></script>
+
+    <script src="{% static 'codemirror/addon/selection/active-line.js' %}"></script>
+    <script src="{% static 'codemirror/addon/comment/comment.js' %}"></script>
+    <script src="{% static 'codemirror/addon/dialog/dialog.js' %}"></script>
+    <script src="{% static 'codemirror/addon/display/fullscreen.js' %}"></script>
+
     <script src="{% static 'codemirror/addon/edit/closetag.js' %}"></script>
+    <script src="{% static 'codemirror/addon/edit/closebrackets.js' %}"></script>
+    <script src="{% static 'codemirror/addon/edit/matchtags.js' %}"></script>
+    <script src="{% static 'codemirror/addon/edit/matchbrackets.js' %}"></script>
+    <script src="{% static 'codemirror/addon/fold/foldcode.js' %}"></script>
+    <script src="{% static 'codemirror/addon/fold/brace-fold.js' %}"></script>
     <script src="{% static 'codemirror/addon/fold/xml-fold.js' %}"></script>
-    <script src="{% static 'codemirror/addon/hint/xml-hint.js' %}"></script>
+
+    <script src="{% static 'codemirror/addon/hint/anyword-hint.js' %}"></script>
     <script src="{% static 'codemirror/addon/hint/html-hint.js' %}"></script>
     <script src="{% static 'codemirror/addon/hint/show-hint.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'codemirror/addon/hint/show-hint.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'codemirror/theme/dracula.css' %}">
+    <script src="{% static 'codemirror/addon/hint/xml-hint.js' %}"></script>
 
-<style>
+    <script src="{% static 'codemirror/addon/scroll/annotatescrollbar.js' %}"></script>
+    <script src="{% static 'codemirror/addon/scroll/simplescrollbars.js' %}"></script>
+
+    <script src="{% static 'codemirror/addon/search/jump-to-line.js' %}"></script>
+    <script src="{% static 'codemirror/addon/search/matchesonscrollbar.js' %}"></script>
+    <script src="{% static 'codemirror/addon/search/search.js' %}"></script>
+    <script src="{% static 'codemirror/addon/search/searchcursor.js' %}"></script>
+
+    <script src="{% static 'codemirror/addon/wrap/hardwrap.js' %}"></script>
+    <script src="{% static 'codemirror/keymap/sublime.js' %}"></script>
+
+
+    <style>
     .lds-ring {
         display: inline-block;
         position: relative;
@@ -235,10 +268,23 @@
                     <span class="btn-inner--text">Refresh</span>
                 </button>
                 <span id="tree" class="text-white text-right"></span>
-                <div class="col-md-3 px-2" style="margin-bottom: -2rem; margin-left: -.5rem">
-                    <div class="form-group">
-                        <label></label>
-                        <select id="modes" class="form-control text-darker"></select>
+                <div class="row" style="margin-top: 1rem">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label text-white">Change Mode</label>
+                            <select id="modes" class="form-control text-darker"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-control-label text-white">Change Theme</label>
+                            <select id="themes" class="form-control text-darker" onchange="selectTheme()"></select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6" style="margin-bottom: -2rem">
+                        <div class="form-group">
+                            <label class="form-control-label text-white">Current Mode: <span class="text-cyan" id="cur_mode"></span></label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -251,13 +297,33 @@
 
 
 <script>
+    var WORD = /[\w$]+/g, RANGE = 500;
+
     var modes = ['apl', 'asciiarmor', 'asn.1', 'asterisk', 'brainfuck', 'clike', 'clojure', 'cmake', 'cobol', 'coffeescript', 'commonlisp', 'crystal', 'css', 'cypher', 'd', 'dart', 'diff', 'django', 'dockerfile', 'dtd', 'dylan', 'ebnf', 'ecl', 'eiffel', 'elm', 'erlang', 'factor', 'fcl', 'forth', 'fortran', 'gas', 'gfm', 'gherkin', 'go', 'groovy', 'haml', 'handlebars', 'haskell', 'haskell-literate', 'haxe', 'htmlembedded', 'htmlmixed', 'http', 'idl', 'javascript', 'jinja2', 'jsx', 'julia', 'livescript', 'lua', 'markdown', 'mathematica', 'mbox', 'mirc', 'mllike', 'modelica', 'mscgen', 'mumps', 'nginx', 'nsis', 'ntriples', 'octave', 'oz', 'pascal', 'pegjs', 'perl', 'php', 'pig', 'powershell', 'properties', 'protobuf', 'pug', 'puppet', 'python', 'q', 'r', 'rpm', 'rst', 'ruby', 'rust', 'sas', 'sass', 'scheme', 'shell', 'sieve', 'slim', 'smalltalk', 'smarty', 'solr', 'soy', 'sparql', 'spreadsheet', 'sql', 'stex', 'stylus', 'swift', 'tcl', 'textile', 'tiddlywiki', 'tiki', 'toml', 'tornado', 'troff', 'ttcn', 'ttcn-cfg', 'turtle', 'twig', 'vb', 'vbscript', 'velocity', 'verilog', 'vhdl', 'vue', 'webidl', 'xml', 'xquery', 'yacas', 'yaml', 'yaml-frontmatter', 'z80'];
+    var themes = ['3024-day', '3024-night', 'abcdef', 'ambiance', 'ambiance-mobile', 'base16-dark', 'base16-light', 'bespin', 'blackboard', 'cobalt', 'colorforth', 'darcula', 'dracula', 'duotone-dark', 'duotone-light', 'eclipse', 'elegant', 'erlang-dark', 'gruvbox-dark', 'hopscotch', 'icecoder', 'idea', 'isotope', 'lesser-dark', 'liquibyte', 'lucario', 'material', 'mbo', 'mdn-like', 'midnight', 'monokai', 'neat', 'neo', 'night', 'nord', 'oceanic-next', 'panda-syntax', 'paraiso-dark', 'paraiso-light', 'pastel-on-dark', 'railscasts', 'rubyblue', 'seti', 'shadowfox', 'solarized', 'ssms', 'the-matrix', 'tomorrow-night-bright', 'tomorrow-night-eighties', 'ttcn', 'twilight', 'vibrant-ink', 'xq-dark', 'xq-light', 'yeti', 'zenburn']
+
     var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
-        lineNumbers: true,
-        theme: 'dracula',
-        mode: "xml",
+        {#mode: "xml",#}
         autofocus: true,
-        autoCloseTags: true
+        keyMap: "sublime",
+        lineNumbers: true,
+        autoCloseTags: true,
+        matchBrackets: true,
+        styleActiveLine: true,
+        autoCloseBrackets: true,
+        scrollbarStyle: "simple",
+        matchTags: {bothTags: true},
+        showCursorWhenSelecting: true,
+        extraKeys: {
+            "Ctrl-J": "toMatchingTag",
+            "Ctrl-F": "findPersistent",
+            "F11": function(cm) {
+                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+            },
+            "Esc": function(cm) {
+                if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+            }
+        }
     });
 
     $(document).ready(function () {
@@ -265,12 +331,18 @@
     });
 
     function initialize() {
+        CodeMirror.modeURL = "{% static 'codemirror/mode' %}" + "/%N/%N.js";
         var tree = document.getElementById('tree');
         tree.innerHTML = '{{ path }}';
 
         var select_mode = document.getElementById('modes');
         for (var mode in modes) {
             select_mode.innerHTML += '<option id="' + modes[mode] + '" value="' + modes[mode] + '">' + modes[mode] + '</option>'
+        }
+
+        var select_theme = document.getElementById('themes');
+        for (var theme in themes) {
+            select_theme.innerHTML += '<option id="' + themes[theme] + '" value="' + themes[theme] + '">' + themes[theme] + '</option>'
         }
 
         $('.CodeMirror').height($(window).height()/1.5);
@@ -293,6 +365,7 @@
                 alert("Something went wrong!");
             }
         });
+        changeMode("{{ path }}");
     }
 
     $('#modes').change(function () {
@@ -306,6 +379,45 @@
             editor.setOption("mode", mode);
         };
     });
+
+    function changeMode(fileName) {
+        var val = fileName, m, mode, spec;
+        if (m = /.+\.([^.]+)$/.exec(val)) {
+            var info = CodeMirror.findModeByExtension(m[1]);
+            if (info) {
+                mode = info.mode;
+                spec = info.mime;
+            }
+        } else if (/\//.test(val)) {
+            var info = CodeMirror.findModeByMIME(val);
+            if (info) {
+                mode = info.mode;
+                spec = val;
+            }
+        } else {
+            mode = spec = val;
+        }
+        if (mode) {
+            editor.setOption("mode", spec);
+            CodeMirror.autoLoadMode(editor, mode);
+            document.getElementById("cur_mode").textContent = spec;
+        } else {
+            alert("Could not find a mode corresponding to " + val);
+        }
+    }
+
+    var input = document.getElementById('themes');
+    function selectTheme() {
+        var theme = input.value;
+        var dir = "{% static 'codemirror/theme' %}" + "/";
+        var css = document.createElement("link");
+        css.rel = "stylesheet";
+        css.href = dir + theme + ".css";
+        document.head.appendChild(css);
+        css.onload = function(){
+            editor.setOption("theme", theme);
+        }
+    }
 
     $('#save').click(function () {
         document.getElementById('save').style.opacity = '0.7';
@@ -378,6 +490,34 @@
     editor.on('inputRead', function onChange(editor, input) {
         if (input.text[0] === ';' || input.text[0] === ' ') { return; }
         CodeMirror.commands.autocomplete(editor, null, { completeSingle: false })
+    });
+
+    CodeMirror.registerHelper("hint", "anyword", function(editor, options) {
+        var word = options && options.word || WORD;
+        var range = options && options.range || RANGE;
+        var cur = editor.getCursor(), curLine = editor.getLine(cur.line);
+        var start = cur.ch, end = start;
+        while (end < curLine.length && word.test(curLine.charAt(end))) ++end;
+        while (start && word.test(curLine.charAt(start - 1))) --start;
+        var curWord = start != end && curLine.slice(start, end);
+
+        var list = [], seen = {};
+        function scan(dir) {
+            var line = cur.line, end = Math.min(Math.max(line + dir * range, editor.firstLine()), editor.lastLine()) + dir;
+            for (; line != end; line += dir) {
+                var text = editor.getLine(line), m;
+                word.lastIndex = 0;
+                while (m = word.exec(text)) {
+                    if ((!curWord || m[0].indexOf(curWord) == 0) && !seen.hasOwnProperty(m[0])) {
+                        seen[m[0]] = true;
+                        list.push(m[0]);
+                    }
+                }
+            }
+        }
+        scan(-1);
+        scan(1);
+        return {list: list, from: CodeMirror.Pos(cur.line, start), to: CodeMirror.Pos(cur.line, end)};
     });
 
 </script>
