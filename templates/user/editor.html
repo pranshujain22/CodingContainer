@@ -377,6 +377,7 @@
         document.body.appendChild(scr);
         scr.onload = function(){
             editor.setOption("mode", mode);
+            document.getElementById("cur_mode").textContent = mode;
         };
     });
 
