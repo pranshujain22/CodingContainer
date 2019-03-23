@@ -16,7 +16,7 @@ token = "Token 4147d4512235bf845a7e8111a6c934cc5c416024"
 
 
 def initial_setup(request):
-    url = "https://spr.openport.io/l/38851/pJRvcymEglvid1LO"
+    url = "https://spr.openport.io/l/4592/HTvNvb52JuL4rnt7"
     payload = ""
     headers = {
         'cache-control': "no-cache",
