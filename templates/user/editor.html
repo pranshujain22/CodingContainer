@@ -345,7 +345,7 @@
             select_theme.innerHTML += '<option id="' + themes[theme] + '" value="' + themes[theme] + '">' + themes[theme] + '</option>'
         }
 
-        $('.CodeMirror').height($(window).height()/1.5);
+        $('.CodeMirror').height($(window).height()/1.3);
         $.ajax({
             type: 'POST',
             url: '{% url 'user:edit_file' %}',
