@@ -10,13 +10,13 @@ import requests
 import json
 
 
-base_url = "http://spr.openport.io:4592"
+base_url = "http://spr.openport.io:21655"
 token = "Token 4147d4512235bf845a7e8111a6c934cc5c416024"
 # base_url = "http://localhost:8000"
 
 
 def initial_setup(request):
-    url = "https://spr.openport.io/l/4592/HTvNvb52JuL4rnt7"
+    url = "https://spr.openport.io/l/21655/eKMeeqrJI8vZ3YOa"
     payload = ""
     headers = {
         'cache-control': "no-cache",
