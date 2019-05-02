@@ -23,9 +23,8 @@ Clone git repo in local file system.
 
 There are some changes required to perform in some source code:
   - CodingContainer/user/views.py
-  - LDAPSearch.java
 
-Replace the value of **base_url** to **'http://localhost:8000/'** in the above .py file..
+Replace the value of **base_url** to **'http://localhost:8000/'** in the above file..
 
 Now the code is ready to run!
 
