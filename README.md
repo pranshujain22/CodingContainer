@@ -5,17 +5,16 @@
 > Note- This project only works on Linux environment.
 ## Prerequisites
 
-1. [JAVA 9 or later]
+1. [Python](https://www.python.org/downloads/)
 
-2. [Docker](https://github.com/pranshujain22/Hadoop/blob/master/Docker/Installation.md)
-Download and install Docker on local linux machine.
+2. Download and install [Docker](https://github.com/pranshujain22/Hadoop/blob/master/Docker/Installation.md) on local linux machine.
 
-3. Install [Django](https://www.djangoproject.com/).
+3. [Django](https://www.djangoproject.com/).
 ```
 $ pip install Django
 ```
 
-3. Install [OpenPort](https://openport.io/download).
+3. [OpenPort](https://openport.io/download).
 
 
 ## Procedure
@@ -30,4 +29,9 @@ Replace the value of **base_url** to **'http://localhost:8000/'** in the above .
 
 Now the code is ready to run!
 
-Run the project 
+Run the project:
+
+> Open Terminal in the repository folder
+```
+$ python manage.py runserver 0.0.0.0:8000
+```
